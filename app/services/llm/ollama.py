@@ -47,14 +47,15 @@ class MockLLMProvider:
         if name == "BookingExtraction":
             from app.schemas import BookingEvidence, BookingExtraction
 
-            now = datetime.now(timezone.utc)
+            start_at = datetime(2026, 8, 5, 15, 0, tzinfo=timezone.utc)
+            end_at = datetime(2026, 8, 8, 11, 0, tzinfo=timezone.utc)
             return BookingExtraction(
                 type="hotel",
                 provider="Mock Hotels",
                 title="Mock Hotel Reservation",
                 confirmation_code="MOCK123",
-                start_at=now,
-                end_at=now,
+                start_at=start_at,
+                end_at=end_at,
                 timezone="America/Argentina/Buenos_Aires",
                 location_name="Buenos Aires",
                 total_amount=150.0,
