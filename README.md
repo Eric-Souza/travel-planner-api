@@ -32,9 +32,26 @@ Local-first AI travel planner backend. Owns all persistence, AI orchestration, f
 
 ## Quick start
 
+**Windows (PowerShell):**
+
+```powershell
+.\scripts\setup.ps1
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+**macOS / Linux:**
+
+```bash
+chmod +x scripts/setup.sh
+./scripts/setup.sh
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+**Manual setup:**
+
 ```bash
 pip install -e ".[dev]"
-cp .env.example .env
+cp .env.example .env    # edit CORS_ORIGINS with your LAN IP for mobile testing
 python scripts/seed_demo.py
 python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
@@ -45,7 +62,17 @@ python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 ## Environment
 
-Copy `.env.example` to `.env`. Defaults use SQLite (`./data/travel_planner.db`) and mock LLM (`USE_MOCK_LLM=true`) so you can run without Docker or Ollama.
+Copy `.env.example` to `.env` (or run `scripts/setup.ps1` / `scripts/setup.sh`).
+
+| Variable | Purpose |
+|----------|---------|
+| `DATABASE_URL` | SQLite by default; switch to PostgreSQL for pgvector |
+| `CORS_ORIGINS` | Expo dev URLs — include your LAN IP for physical devices |
+| `UPLOADS_DIR` | Local path for uploaded PDFs/EML/TXT |
+| `USE_MOCK_LLM` | `true` = no Ollama required; `false` when Ollama is running |
+| `OLLAMA_*` | Model names when using real Ollama |
+
+Defaults use SQLite (`./data/travel_planner.db`) and mock LLM (`USE_MOCK_LLM=true`) so you can run without Docker or Ollama.
 
 For PostgreSQL + pgvector:
 
