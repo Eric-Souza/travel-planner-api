@@ -1,0 +1,31 @@
+from app.models.tables import (
+    AuditLog,
+    Booking,
+    Conversation,
+    Document,
+    DocumentChunk,
+    ItineraryItem,
+    ItineraryProposal,
+    ItineraryVersion,
+    Message,
+    Place,
+    ToolRun,
+    TravelPreference,
+    Trip,
+)
+
+__all__ = [
+    "AuditLog",
+    "Booking",
+    "Conversation",
+    "Document",
+    "DocumentChunk",
+    "ItineraryItem",
+    "ItineraryProposal",
+    "ItineraryVersion",
+    "Message",
+    "Place",
+    "ToolRun",
+    "TravelPreference",
+    "Trip",
+]
