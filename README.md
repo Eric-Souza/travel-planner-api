@@ -131,6 +131,10 @@ All `/v1` responses use `{ "data": ..., "request_id": "req_..." }`.
 - Bookings from extraction stay `extracted` until `POST /bookings/{id}/confirm`
 - Itinerary proposals never auto-apply
 
+## Documentation
+
+- [AI layer guide](docs/ai-layer.md) — LLMs, prompts, RAG, and chat streaming (with code map)
+
 ## Cursor / AI assistant setup
 
 Copy the contents of [`CURSOR.md`](CURSOR.md) into a Cursor rule or project instruction, or rely on the auto-loaded rule at `.cursor/rules/project.md`.
