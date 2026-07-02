@@ -14,8 +14,8 @@ from app.schemas import (
     SourceCitation,
 )
 from app.services.ingestion.parser import cosine_similarity
+from app.services.llm.chains import invoke_grounded_answer
 from app.services.llm.ollama import get_llm_provider
-from app.services.llm.prompts.document import GROUNDED_ANSWER_PROMPT
 from app.services.trips import TripService
 
 
@@ -74,12 +74,11 @@ class RetrievalService:
             )
             sources.append(citation)
             parts.append(f"[{citation.title} p.{citation.page}]: {chunk.content[:500]}")
-        prompt = GROUNDED_ANSWER_PROMPT.format(
-            question=request.question, sources="\n\n".join(parts)
+        answer = await invoke_grounded_answer(self.llm, request.question, parts)
+        not_found = any(
+            phrase in answer.lower()
+            for phrase in ("could not find", "not found", "no information")
         )
-        result = await self.llm.chat([{"role": "user", "content": prompt}])
-        answer = result.content.strip()
-        not_found = any(p in answer.lower() for p in ("could not find", "not found", "no information"))
         return GroundedAnswer(
             question=request.question,
             answer=answer,

@@ -19,7 +19,7 @@ Local-first AI travel planner backend. Owns all persistence, AI orchestration, f
 | PDF parsing | [PyMuPDF](https://pymupdf.readthedocs.io/) |
 | EML parsing | Python `email` stdlib |
 | Streaming | [sse-starlette](https://github.com/sysid/sse-starlette) |
-| LLM (local) | [Ollama](https://ollama.com/) behind `LLMProvider` abstraction |
+| LLM (local) | [Ollama](https://ollama.com/) via **LangChain** (`langchain-ollama`) + `LLMProvider` abstraction |
 | LLM (dev fallback) | `MockLLMProvider` when Ollama is unavailable or `USE_MOCK_LLM=true` |
 | File storage | Local disk (`data/uploads/`) |
 | Live data tools | Open-Meteo, open.er-api.com, Nominatim, OSRM (backend adapters only) |
@@ -28,7 +28,7 @@ Local-first AI travel planner backend. Owns all persistence, AI orchestration, f
 | Packaging | [Hatchling](https://hatch.pypa.io/) / `pyproject.toml` |
 | Containers | Docker Compose (PostgreSQL + pgvector) |
 
-**Intentionally not used:** LangChain, LlamaIndex, paid LLM APIs, multi-agent frameworks, cloud deployment in v1.
+**Intentionally not used:** LlamaIndex, paid LLM APIs, multi-agent frameworks, cloud deployment in v1.
 
 ## Quick start
 
@@ -101,6 +101,7 @@ app/
   models/tables.py        ORM models
   schemas/                Pydantic request/response DTOs
   services/               Business logic (trips, documents, RAG, chat, planner, tools)
+  services/llm/           LLMProvider, LangChain Ollama, prompts, LCEL chains
   evals/                  Evaluation fixtures
 scripts/seed_demo.py      Synthetic Buenos Aires + Bariloche trip
 tests/                    pytest suite
@@ -127,7 +128,7 @@ All `/v1` responses use `{ "data": ..., "request_id": "req_..." }`.
 - **Routes** are thin; business logic lives in `app/services/`
 - **LLMs propose**; Python validates; **users confirm** extracted bookings and itinerary applies
 - **SQL** is authoritative for structured booking facts; **RAG** for document details; **tools** for live data
-- **LLM** via `LLMProvider` (`OllamaProvider` + `MockLLMProvider`)
+- **LLM** via `LLMProvider` (`LangChainOllamaProvider` + `MockLLMProvider`)
 - Bookings from extraction stay `extracted` until `POST /bookings/{id}/confirm`
 - Itinerary proposals never auto-apply
 

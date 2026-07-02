@@ -12,7 +12,7 @@ async def test_live_health_endpoint() -> None:
     try:
         async with httpx.AsyncClient(base_url="http://127.0.0.1:8000", timeout=2.0) as client:
             response = await client.get("/health")
-    except (httpx.ConnectError, httpx.ReadTimeout):
+    except (httpx.ConnectError, httpx.ReadTimeout, httpx.ConnectTimeout):
         pytest.skip("API server not running on http://127.0.0.1:8000")
 
     assert response.status_code == 200

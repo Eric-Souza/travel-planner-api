@@ -18,14 +18,14 @@ All AI calls go through a single **`LLMProvider`** interface (`app/services/llm/
 - **`MockLLMProvider`** when `USE_MOCK_LLM=true` (default dev setup — no Ollama required)
 - **`OllamaProvider`** when `USE_MOCK_LLM=false` (real local LLM via HTTP)
 
-`OllamaProvider` probes `GET /api/tags`; if Ollama is down it **falls back to mock** for every call. There is no LangChain or LlamaIndex — just `httpx` to Ollama’s `/api/chat` and `/api/embeddings`.
+`OllamaProvider` probes `GET /api/tags`; if Ollama is down it **falls back to mock** for every call. The stack uses **LangChain** (`langchain-ollama`) for chat, embeddings, structured output, and the grounded-answer RAG chain — not raw httpx to Ollama.
 
 ```python
-# app/services/llm/ollama.py
+# app/services/llm/ollama.py — factory
 def get_llm_provider() -> LLMProvider:
     if settings.use_mock_llm:
         return MockLLMProvider()
-    return OllamaProvider()
+    return LangChainOllamaProvider()  # ChatOllama + OllamaEmbeddings via LangChain
 ```
 
 ### Services that use the LLM
@@ -91,12 +91,11 @@ extraction = await self.llm.structured_output(
 )
 ```
 
-### How `structured_output` works (Ollama)
+### How `structured_output` works (Ollama via LangChain)
 
-1. Send chat messages to Ollama.
-2. Append a user message: *“Return ONLY valid JSON matching this schema: …”* (Pydantic `model_json_schema()`).
-3. Parse JSON from the response and validate with Pydantic.
-4. On parse failure → fall back to `MockLLMProvider`.
+1. `ChatOllama.with_structured_output(schema)` — tries `json_schema`, then `function_calling`
+2. On failure → JSON-in-prompt fallback via `chat`
+3. On failure → fall back to `MockLLMProvider`
 
 ### Output schemas
 
@@ -164,7 +163,7 @@ Top-N chunks are returned sorted by score.
 1. Hybrid search (default top 5 chunks).
 2. Build source passages with citations (`SourceCitation`: document title, page, excerpt).
 3. Fill `GROUNDED_ANSWER_PROMPT` with question + sources.
-4. **`llm.chat`** → natural language answer.
+4. **`invoke_grounded_answer`** — LangChain LCEL chain (`prompt | ChatOllama | StrOutputParser`) when using real Ollama; mock/provider fallback otherwise.
 5. If answer contains “could not find” / “not found” → `found=false`, sources cleared.
 
 ### Search only — `POST /v1/trips/{id}/search`
@@ -308,9 +307,13 @@ If you **skip `embed`**, extraction still works, but document search and Q&A ret
 
 ```
 app/services/llm/
-  provider.py          # LLMProvider protocol
-  ollama.py            # MockLLMProvider, OllamaProvider, get_llm_provider()
-  prompts/document.py  # Prompt templates
+  provider.py            # LLMProvider protocol
+  mock.py                # MockLLMProvider (dev / fallback)
+  langchain_provider.py  # LangChainOllamaProvider (ChatOllama, OllamaEmbeddings)
+  chains.py              # LCEL grounded-answer chain
+  messages.py            # dict messages ↔ LangChain messages
+  ollama.py              # get_llm_provider() factory
+  prompts/document.py    # Prompt templates
 
 app/services/documents.py   # upload, process, extract, embed
 app/services/retrieval.py   # hybrid search, ask, search

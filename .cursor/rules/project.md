@@ -4,9 +4,9 @@ You are working on the **Travel Planner API**: a local-first FastAPI backend for
 
 ## Stack
 
-Python 3.12+, FastAPI, Pydantic v2, SQLAlchemy 2 async, SQLite (dev) / PostgreSQL+pgvector (Docker), Ollama + MockLLMProvider, PyMuPDF, pytest, Ruff.
+Python 3.12+, FastAPI, Pydantic v2, SQLAlchemy 2 async, SQLite (dev) / PostgreSQL+pgvector (Docker), Ollama via LangChain (`langchain-ollama`) + MockLLMProvider, PyMuPDF, pytest, Ruff.
 
-No LangChain, LlamaIndex, paid LLMs, or agent frameworks.
+No LlamaIndex, paid LLMs, or multi-agent frameworks.
 
 ## Structure
 

@@ -28,7 +28,8 @@ The mobile app never calls Ollama, the database, or external providers directly.
 - Ollama for chat/embeddings; `MockLLMProvider` when `USE_MOCK_LLM=true`
 - PyMuPDF (PDF), stdlib `email` (EML), local file storage
 - pytest, Ruff, httpx, sse-starlette
-- **No** LangChain, LlamaIndex, paid LLM APIs, or agent frameworks
+- **LLM:** Ollama via **LangChain** (`langchain-ollama`) behind `LLMProvider`; `MockLLMProvider` for dev
+- **No** LlamaIndex, paid LLM APIs, or multi-agent frameworks
 
 ---
 
